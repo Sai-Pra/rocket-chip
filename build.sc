@@ -191,7 +191,7 @@ trait Emulator extends Cross.Module2[String, String] {
         generator.chirrtl().path,
         s"--annotation-file=${generator.chiselAnno().path}",
         "--disable-annotation-unknown",
-        "-dedup",
+        
         "-O=debug",
         "--split-verilog",
         "--preserve-values=named",
@@ -220,7 +220,7 @@ trait Emulator extends Cross.Module2[String, String] {
         generator.chirrtl().path,
         s"--annotation-file=${generator.chiselAnno().path}",
         "--disable-annotation-unknown",
-        "-dedup",
+        
         "-O=debug",
         "--split-verilog",
         "--preserve-values=named",
@@ -354,6 +354,7 @@ object emulator extends Cross[Emulator](
   ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.WithJtagDTMSystem_freechips.rocketchip.system.WithDebugSBASystem_freechips.rocketchip.system.DefaultConfig"),
   ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.WithJtagDTMSystem_freechips.rocketchip.system.WithDebugSBASystem_freechips.rocketchip.system.DefaultRV32Config"),
   ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.WithJtagDTMSystem_freechips.rocketchip.system.DefaultConfig"),
+  ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.MinimalPipelineConfig"),
   ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.WithJtagDTMSystem_freechips.rocketchip.system.DefaultRV32Config"),
   // Miscellaneous
   ("freechips.rocketchip.system.TestHarness", "freechips.rocketchip.system.DefaultSmallConfig"),

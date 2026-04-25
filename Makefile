@@ -8,7 +8,7 @@ CONFIG ?= $(CFG_PROJECT).DefaultConfig
 MILL ?= mill
 
 verilog:
-	cd $(base_dir) && $(MILL) emulator[freechips.rocketchip.system.TestHarness,$(CONFIG)].mfccompiler.compile
+	cd $(base_dir) && ./$(MILL) emulator[freechips.rocketchip.system.TestHarness,$(CONFIG)].mfccompiler.compile
 
 clean:
 	rm -rf out/

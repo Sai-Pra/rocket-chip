@@ -5,7 +5,9 @@ package freechips.rocketchip.system
 
 import org.chipsalliance.cde.config.Config
 import freechips.rocketchip.subsystem._
-import freechips.rocketchip.rocket.{WithNBigCores, WithNMedCores, WithNSmallCores, WithRV32, WithFP16, WithHypervisor, With1TinyCore, WithScratchpadsOnly, WithCloneRocketTiles, WithB}
+import freechips.rocketchip.subsystem.{TilesLocated, InSubsystem, RocketTileAttachParams}
+import freechips.rocketchip.rocket.{WithNBigCores, WithNMedCores, WithNSmallCores, WithRV32, WithFP16, WithHypervisor, With1TinyCore, WithScratchpadsOnly, WithCloneRocketTiles, WithB, RocketCoreParams, DCacheParams, ICacheParams}
+import freechips.rocketchip.tile.RocketTileParams
 
 class WithJtagDTMSystem extends freechips.rocketchip.subsystem.WithJtagDTM
 class WithDebugSBASystem extends freechips.rocketchip.subsystem.WithDebugSBA
@@ -105,3 +107,45 @@ class BaseFPGAConfig extends Config(new BaseConfig ++ new WithCoherentBusTopolog
 class DefaultFPGAConfig extends Config(new WithNSmallCores(1) ++ new BaseFPGAConfig)
 
 class CloneTileConfig extends Config(new WithCloneRocketTiles(7) ++ new WithNBigCores(1) ++ new WithCoherentBusTopology ++ new BaseConfig)
+
+class MinimalPipelineConfig extends Config(
+  new Config((site, here, up) => {
+    case TilesLocated(InSubsystem) => {
+      val prev = up(TilesLocated(InSubsystem), site)
+      prev.map {
+        case tp: RocketTileAttachParams => tp.copy(
+          tileParams = tp.tileParams.copy(
+            core = tp.tileParams.core.copy(
+              fpu             = None,   // disables FPU entirely (removes F/D extensions)
+              mulDiv          = Some(freechips.rocketchip.rocket.MulDivParams()), // keep M extension
+              nL2TLBEntries   = 0,      // no L2 TLB
+              nL2TLBWays      = 1
+            ),
+            btb = None,
+            icache = tp.tileParams.icache.map(_.copy(
+              nSets               = 16,
+              nWays               = 1,
+              nTLBSets            = 1,
+              nTLBWays            = 4,
+              nTLBBasePageSectors = 1,
+              nTLBSuperpages      = 1
+            )),
+            dcache = tp.tileParams.dcache.map(_.copy(
+              nSets               = 16,
+              nWays               = 1,
+              nMSHRs              = 0,
+              nTLBSets            = 1,
+              nTLBWays            = 4,
+              nTLBBasePageSectors = 1,
+              nTLBSuperpages      = 1
+            ))
+          )
+        )
+        case other => other
+      }
+    }
+  }) ++
+  new WithNBigCores(1) ++
+  new WithCoherentBusTopology ++
+  new BaseConfig
+)
